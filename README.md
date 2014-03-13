@@ -1,5 +1,5 @@
 pynotes
-=======
+-------
 
 Dark things that I want to remember myself about python
 
@@ -30,3 +30,11 @@ Decorators
 ----------
 
 - Take care while decorating methods (because the wrapper function will be the method and not the decorated function) [Read about the descriptor protocol to know what is going on]
+
+super
+-----
+
+It is a class
+
+descriptors
+-----------
