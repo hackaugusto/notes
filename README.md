@@ -56,6 +56,8 @@ descriptors
 -----------
 
 This pep describes the descriptor protocol [Making Types Look More Like Classes ](http://legacy.python.org/dev/peps/pep-0252/) [`__methods__` seems to have been dropped]
+[Descriptor HowTo Guide](https://docs.python.org/2/howto/descriptor.html)
+[Unifying types and classes in Python 2.2](https://www.python.org/download/releases/2.2.3/descrintro/#cooperation)
 
 It defines how attributes are defined (to be introspected):
 
@@ -72,10 +74,10 @@ Attribute lookup order for `obj.attr`:
 
 Descriptors:
 
-If "a" is a function defined in a class or metaclass and it does have the `__get__` and/or `__set__` method defined:
+If "a" is a data descriptor defined in a class (metaclasses are ignore for this):
 
-`obj.a = 1` calls `obj.__class__.__dict__['a'].__set__(obj, 1)`
-`obj.a` calls `obj.__class__.__dict__['a'].__get__(a, a.__class__)` (bind operation, returns a method if it is not staticmethod or classmethod)
-`C.a` class `C.__dict__['a'].__get__(None, C)` (does not bind because of the absence of an obj [using None], returns an unbound method)
+- `obj.a = 1` calls `obj.__class__.__dict__['a'].__set__(obj, 1)`
+- `obj.a` calls `obj.__class__.__dict__['a'].__get__(a, a.__class__)` (bind operation, returns a method if it is not staticmethod or classmethod)
+- `C.a` class `C.__dict__['a'].__get__(None, C)` (does not bind because of the absence of an obj [using None], returns an unbound method)
 
 
