@@ -41,7 +41,6 @@ As of python 2.7.6:
 `collections.namedtuple` are a different beast, they are created by `exec`ing a code template that creates a subclass of `tuple`, so there is no type `namedtuple`, only subclasses of `tuple`. You can _lossely_ check for a `namedtuple` using `issubclass(obj.__class__, tuple)`, this will return `True` for subclasses of `tuple` and `False` for `tuple` itself.
 
 
-
 Decorators
 ----------
 
@@ -80,4 +79,13 @@ If "a" is a data descriptor defined in a class (metaclasses are ignore for this)
 - `obj.a` calls `obj.__class__.__dict__['a'].__get__(a, a.__class__)` (bind operation, returns a method if it is not staticmethod or classmethod)
 - `C.a` class `C.__dict__['a'].__get__(None, C)` (does not bind because of the absence of an obj [using None], returns an unbound method)
 
+mappings
+--------
 
+For an object to be considered a mapping it needs to implement the `keys()` and `__getitem__()` methods, Objects/dictobject.c:PyDict_Merge
+
+varargs & kwargs
+----------------
+
+varargs can be a tuple, a list, or a objects that implements the iterable protocol
+kwargs need to be a mapping
