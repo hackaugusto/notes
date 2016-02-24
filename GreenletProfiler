@@ -1,0 +1,61 @@
+GreenletProfiler
+----------------
+
+The project is really two things, a fork of the yappi profiler and a thing
+wrapper around it.
+
+The fork seems to add some features, the most obvious one is the different
+kinds of timming, specially the cpu timming.
+
+This is how roughly the project works:
+
+- the GreenletProfiler.py has two tiny wrappers to start and end a profilling
+  session, the main duty of this functions is to set the context_id_callback
+  and context_name_callback. The C code will use these functions to know when the
+  interpreter switched the execution thread, to account for context switches and
+  cpu timming.
+
+- After this initial setup most of the work is done by the YAPPI profiller.
+
+This is the rough outline of how YAPPI works:
+
+- YAPPI uses two flags to configure how it's going to work, builtins and
+  multithread.
+
+  - When the multithreaded is set YAPPI will auto-install itself on the new
+    threads, if the flag is false it will install at _all threads running at
+    the time start() was called_
+    - yappi.py:_callback is called only once because the C function will replace it
+
+- The profiling is done by the C callback installed called _yapp_callback
+  - Ref: [https://docs.python.org/2/library/sys.html#sys.setprofile]
+  - The profilling is divided in two "domains" the execution context and the
+    function context
+    - The execution context is changed everytime there is a context switch
+      between threads, or in the case of GreenletProfiler because of the
+      functions context_id_callback and context_name_callback, when a greenlet
+      context changes.
+    - The function context is shared among all threads and it's used for
+      keeping track of timming and call counts.
+
+- _yapp_callback does the following:
+  - ensures that a thread context exist
+     - uses thread2ctx that rellies on the context id id(greenlet.getcurrent())
+  - detects context switches
+     - if the current id != last_id
+     - this is important because the cpu timer needs to be stopped, we don't
+       want to account for the running of the new execution context. In
+       GreenletProfiler this works by assuming that the current time is the stop/sleep
+       time for the old thread, and when the thread is resumed the sleep time is
+       deduced from the total running time.
+     - the time keeping needs to be done both for the context and the frames,
+       because the frame time is used for accounting the pit time
+  - create the PIT strucuture used to track time for a given function
+       - The pit structure is shared among all threads, that means the profiller
+       only tracks global call count and global running time.
+       - 
+
+
+- A bit about the datastructures:
+_ctx stores the data for a execution thread
+_ctx.cs is a stack of pits
